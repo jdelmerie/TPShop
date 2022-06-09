@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import fr.fms.business.IBShopImpl;
 import fr.fms.entities.Article;
@@ -35,7 +37,7 @@ public class TpShopApplication implements CommandLineRunner {
 					displayArticles();
 					break;
 				case 2:
-					System.out.println("Afficher tous les articles avec pagination");
+					getArticlesByPages();
 					break;
 				case 3:
 					int articleChoice = 0;
@@ -227,6 +229,28 @@ public class TpShopApplication implements CommandLineRunner {
 		displayCatogories();
 	}
 
+	public void getArticlesByPages() {
+
+		int totalPages = ibShopImpl.getAllByPages(PageRequest.of(0, 5)).getTotalPages();
+
+		for (int i = 0; i < totalPages; i++) {
+			Page<Article> page = ibShopImpl.getAllByPages(PageRequest.of(i, 5));
+
+			System.out.format(lineArticle);
+			System.out.format(headerArticle);
+			System.out.format(lineArticle);
+
+			for (Article article : page.getContent()) {
+				System.out.format(formatArticle, article.getId(), article.getBrand(), article.getDescription(),
+						article.getCategory().getName(), article.getPrice());
+			}
+			System.out.format(lineArticle);
+			int pageNumber = i + 1;
+			System.out.println("Page " + pageNumber + " sur " + totalPages);
+			System.out.println();
+		}
+	}
+
 	public static int input() {
 		int choice;
 		while (scan.hasNextInt() == false)
@@ -251,12 +275,12 @@ public class TpShopApplication implements CommandLineRunner {
 		return str;
 	}
 
-	public static String formatArticle = "| %-4d | %-25s | %-25s| %-15s | %-8s   | %n";
-	public static String lineArticle = "+------+---------------------------+--------------------------+-----------------+------------+%n";
-	public static String headerArticle = "| ID   | BRAND                     | DESCRIPTION              | CATEGORY        | PRICE      |%n";
+	public static String formatArticle = "| %-4d | %-25s | %-25s| %-25s | %-8s   | %n";
+	public static String lineArticle =   "+------+---------------------------+--------------------------+---------------------------+------------+%n";
+	public static String headerArticle = "| ID   | BRAND                     | DESCRIPTION              | CATEGORY                  | PRICE      |%n";
 
-	public static String formatCategory = "| %-4d | %-17s | %n";
-	public static String lineCategory = "+------+-------------------+%n";
-	public static String headerCategory = "| ID   | NAME              |%n";
+	public static String formatCategory = "| %-4d | %-20s | %n";
+	public static String lineCategory =   "+------+------------------------+%n";
+	public static String headerCategory = "| ID   | NAME                   |%n";
 
 }

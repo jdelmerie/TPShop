@@ -3,8 +3,9 @@ package fr.fms.business;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
 import fr.fms.dao.ArticleRepository;
 import fr.fms.dao.CategoryRepository;
 import fr.fms.entities.Article;
@@ -31,7 +32,7 @@ public class IBShopImpl implements IBShop {
 
 	@Override
 	public Article getArticle(long id) {
-		return articleRepository.getReferenceById(id)  ;
+		return articleRepository.getReferenceById(id);
 	}
 
 	@Override
@@ -59,6 +60,8 @@ public class IBShopImpl implements IBShop {
 		categoryRepository.deleteById(id);
 	}
 
-
-
+	@Override
+	public Page<Article> getAllByPages(Pageable pageable) {
+		return articleRepository.findAll(pageable);
+	}
 }
