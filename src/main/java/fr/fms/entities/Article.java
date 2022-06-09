@@ -1,8 +1,6 @@
 package fr.fms.entities;
 
 import java.io.Serializable;
-import java.util.Optional;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;

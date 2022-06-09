@@ -45,6 +45,10 @@ public class TpShopApplication implements CommandLineRunner {
 					break;
 				case 4:
 					displayCatogories();
+					System.out.println(
+							"Quelle catégorie d'articles souhaitez-vous consulter ? [Saisir l'ID correspondant]");
+					int id = input();
+					displayArticleByCat((long)id);
 					break;
 				case 5:
 					int categoryChoice = 0;
@@ -67,18 +71,34 @@ public class TpShopApplication implements CommandLineRunner {
 	}
 
 	public static void displayMenu() {
-		System.out.println("Menu principal");
+		System.out.println("+------------------------------------------------------------+");
+		System.out.println("|                     Menu principal                         |");
+		System.out.println("+------------------------------------------------------------+");
 		System.out.println("Que souhaitez-vous faire ? [Saisir le chiffre correspondant]");
 		System.out.println("[1] - Afficher tous les articles");
 		System.out.println("[2] - Afficher tous les articles avec pagination");
 		System.out.println("[3] - Gérer un article");
-		System.out.println("[4] - Afficher toutes les catégories");
+		System.out.println("[4] - Afficher tous les articles d'une catégorie");
 		System.out.println("[5] - Gérer une catégorie");
 		System.out.println("[6] - Quitter l'application");
 	}
 
 	public void displayArticles() {
 		List<Article> articles = ibShopImpl.getAllArticles();
+		System.out.format(lineArticle);
+		System.out.format(headerArticle);
+		System.out.format(lineArticle);
+
+		for (Article article : articles) {
+			System.out.format(formatArticle, article.getId(), article.getBrand(), article.getDescription(),
+					article.getCategory().getName(), article.getPrice());
+		}
+		System.out.format(lineArticle);
+		System.out.println();
+	}
+	
+	public void displayArticleByCat(long id) {
+		List<Article> articles = ibShopImpl.getArticlesByCategory(id);
 		System.out.format(lineArticle);
 		System.out.format(headerArticle);
 		System.out.format(lineArticle);
@@ -105,8 +125,9 @@ public class TpShopApplication implements CommandLineRunner {
 	}
 
 	public void displaySousMenu(String menuName) {
-		System.out
-				.println("Gestion des " + menuName + " : Que souhaitez-vous faire ? [Saisir le chiffre correspondant]");
+		System.out.println("+---------------------------------------------------------------------------------------------------+");
+		System.out.println("|    Gestion des " + menuName + " : Que souhaitez-vous faire ? [Saisir le chiffre correspondant]    |");
+		System.out.println("+---------------------------------------------------------------------------------------------------+");
 		System.out.println("[1] - Ajouter");
 		System.out.println("[2] - Modifier");
 		System.out.println("[3] - Supprimer");
@@ -230,7 +251,6 @@ public class TpShopApplication implements CommandLineRunner {
 	}
 
 	public void getArticlesByPages() {
-
 		int totalPages = ibShopImpl.getAllByPages(PageRequest.of(0, 5)).getTotalPages();
 
 		for (int i = 0; i < totalPages; i++) {
@@ -276,11 +296,11 @@ public class TpShopApplication implements CommandLineRunner {
 	}
 
 	public static String formatArticle = "| %-4d | %-25s | %-25s| %-25s | %-8s   | %n";
-	public static String lineArticle =   "+------+---------------------------+--------------------------+---------------------------+------------+%n";
+	public static String lineArticle = "+------+---------------------------+--------------------------+---------------------------+------------+%n";
 	public static String headerArticle = "| ID   | BRAND                     | DESCRIPTION              | CATEGORY                  | PRICE      |%n";
 
-	public static String formatCategory = "| %-4d | %-20s | %n";
-	public static String lineCategory =   "+------+------------------------+%n";
-	public static String headerCategory = "| ID   | NAME                   |%n";
+	public static String formatCategory = "| %-4d | %-25s | %n";
+	public static String lineCategory = "+------+---------------------------+%n";
+	public static String headerCategory = "| ID   | NAME                      |%n";
 
 }

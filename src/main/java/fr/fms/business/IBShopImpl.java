@@ -64,4 +64,9 @@ public class IBShopImpl implements IBShop {
 	public Page<Article> getAllByPages(Pageable pageable) {
 		return articleRepository.findAll(pageable);
 	}
+
+	@Override
+	public List<Article> getArticlesByCategory(long id) {
+		return articleRepository.findByCategoryId(id);
+	}
 }

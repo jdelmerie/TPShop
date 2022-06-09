@@ -25,5 +25,7 @@ public interface IBShop {
 	public void deleteCategory(long id);
 	
 	public Page<Article> getAllByPages(Pageable pageable);
+	
+	public List<Article> getArticlesByCategory(long id);
 
 }
