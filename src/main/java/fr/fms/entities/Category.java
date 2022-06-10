@@ -3,11 +3,13 @@ package fr.fms.entities;
 import java.io.Serializable;
 import java.util.Collection;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.PreRemove;
 
 @Entity
 public class Category implements Serializable {
@@ -18,14 +20,20 @@ public class Category implements Serializable {
 	private Long id;
 	private String name;
 
-	@OneToMany(mappedBy = "category") // une catégorie est liée à plusieurs articles
+	@OneToMany(mappedBy = "category", cascade = CascadeType.PERSIST) // une catégorie est liée à plusieurs articles
 	private Collection<Article> articles;
+
+	@PreRemove
+	private void preRemove() {
+		articles.forEach(article -> article.setCategory(null));
+	}
 
 	public Category(String name) {
 		this.name = name;
 	}
 
-	public Category() {	}
+	public Category() {
+	}
 
 	@Override
 	public String toString() {

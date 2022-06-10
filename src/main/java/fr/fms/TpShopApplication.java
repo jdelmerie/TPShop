@@ -65,6 +65,7 @@ public class TpShopApplication implements CommandLineRunner {
 				System.out.println();
 			}
 		}
+		scan.close();
 	}
 
 	/**
@@ -92,6 +93,7 @@ public class TpShopApplication implements CommandLineRunner {
 
 	/**
 	 * Sub menu CRUD Article
+	 * 
 	 * @param choice
 	 */
 	public void gestionArticle(int choice) {
@@ -154,6 +156,7 @@ public class TpShopApplication implements CommandLineRunner {
 
 	/**
 	 * Sub menu CRUD Category
+	 * 
 	 * @param choice
 	 */
 	public void gestionCategory(int choice) {
@@ -251,10 +254,11 @@ public class TpShopApplication implements CommandLineRunner {
 	private void displayArticles(List<Article> articles) {
 		System.out.format(lineArticle);
 		System.out.format(headerArticle);
-		System.out.format(lineArticle);
+		System.out.format(lineArticle);;
 		articles.forEach(article -> {
 			System.out.format(formatArticle, article.getId(), article.getBrand(), article.getDescription(),
-					article.getCategory().getName(), article.getPrice());
+					article.getCategory() != null ? article.getCategory().getName() : "N/A",
+					article.getPrice());
 		});
 		System.out.format(lineArticle + "\n");
 	}
