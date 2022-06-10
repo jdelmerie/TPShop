@@ -51,7 +51,7 @@ public class IBShopImpl implements IBShop {
 	}
 
 	@Override
-	public Category addAnsUpdateCategory(Category category) {
+	public Category addAndUpdateCategory(Category category) {
 		return categoryRepository.save(category);
 	}
 

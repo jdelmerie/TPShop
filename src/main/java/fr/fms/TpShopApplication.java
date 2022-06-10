@@ -28,31 +28,28 @@ public class TpShopApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		int choice = 0;
-
-		while (choice != 8) {
+		while (choice != 6) {
 			try {
 				displayMenu();
 				switch (choice = input()) {
 				case 1:
-					displayArticles();
+					displayAllArticles();
 					break;
 				case 2:
 					getArticlesByPages();
 					break;
 				case 3:
-					int articleChoice = 0;
-					gestionArticle(articleChoice);
-					break;
-				case 4:
 					displayCatogories();
 					System.out.println(
 							"Quelle catégorie d'articles souhaitez-vous consulter ? [Saisir l'ID correspondant]");
-					int id = input();
-					displayArticleByCat((long)id);
+					List<Article> articles = ibShopImpl.getArticlesByCategory((long) input());
+					displayArticles(articles);
+					break;
+				case 4:
+					gestionArticle(0);
 					break;
 				case 5:
-					int categoryChoice = 0;
-					gestionCategory(categoryChoice);
+					gestionCategory(0);
 					break;
 				case 6:
 					System.out.println("Bye, à bientôt");
@@ -70,6 +67,154 @@ public class TpShopApplication implements CommandLineRunner {
 		}
 	}
 
+	/**
+	 * Display list of all articles
+	 */
+	public void displayAllArticles() {
+		List<Article> articles = ibShopImpl.getAllArticles();
+		displayArticles(articles);
+	}
+
+	/**
+	 * Display all categories
+	 */
+	public void displayCatogories() {
+		List<Category> categories = ibShopImpl.getAllCategories();
+		System.out.format(lineCategory);
+		System.out.format(headerCategory);
+		System.out.format(lineCategory);
+		categories.forEach(category -> {
+			System.out.format(formatCategory, category.getId(), category.getName());
+		});
+		System.out.format(lineCategory);
+		System.out.println();
+	}
+
+	/**
+	 * Sub menu CRUD Article
+	 * @param choice
+	 */
+	public void gestionArticle(int choice) {
+		while (choice != 4) {
+			displaySousMenu("articles");
+			switch (choice = input()) {
+			case 1:
+				System.out.println("Ajouter un article");
+				System.out.println("------------------");
+				System.out.println("Veillez saisir la marque :");
+				String brand = inputStr();
+				System.out.println("Veillez saisir la description :");
+				String description = inputStr();
+				System.out.println("Veillez saisir le prix :");
+				double price = inputDouble();
+				System.out.println("Veillez choisir la catégorie :");
+				displayCatogories();
+				Category category = ibShopImpl.getCategory((long) input());
+				ibShopImpl.addAndUpdateArticle(new Article(description, brand, price, category));
+				displayAllArticles();
+				break;
+			case 2:
+				System.out.println("Modifier un article");
+				System.out.println("-------------------");
+				System.out.println("Quel article souhaitez-vous modifier ? [Saisir l'ID correspondant]");
+				displayAllArticles();
+				Article article = ibShopImpl.getArticle((long) input());
+				System.out.println("Veillez saisir la marque :");
+				String brandToUpdate = inputStr();
+				article.setBrand(brandToUpdate);
+				System.out.println("Veillez saisir la description :");
+				String descriptionToUpdate = inputStr();
+				article.setDescription(descriptionToUpdate);
+				System.out.println("Veillez saisir le prix :");
+				double priceToUpdate = inputDouble();
+				article.setPrice(priceToUpdate);
+				System.out.println("Veillez choisir la catégorie :");
+				displayCatogories();
+				Category categoryToUpdate = ibShopImpl.getCategory((long) input());
+				article.setCategory(categoryToUpdate);
+				ibShopImpl.addAndUpdateArticle(article);
+				displayAllArticles();
+				break;
+			case 3:
+				System.out.println("Supprimer un article");
+				System.out.println("--------------------");
+				System.out.println("Quel article souhaitez-vous supprimer ? [Saisir l'ID correspondant]");
+				displayAllArticles();
+				ibShopImpl.deleteArticle((long) input());
+				displayAllArticles();
+				break;
+			case 4:
+				System.out.println("Retour");
+				break;
+			default:
+				System.out.println("Mauvaise saisie, recommencez !");
+			}
+		}
+	}
+
+	/**
+	 * Sub menu CRUD Category
+	 * @param choice
+	 */
+	public void gestionCategory(int choice) {
+		while (choice != 4) {
+			displaySousMenu("catégories");
+			choice = input();
+			switch (choice) {
+			case 1:
+				System.out.println("Ajouter une catégorie");
+				System.out.println("---------------------");
+				System.out.println("Veillez saisir le nom :");
+				String name = inputStr();
+				ibShopImpl.addAndUpdateCategory(new Category(name));
+				displayCatogories();
+				break;
+			case 2:
+				System.out.println("Modifier une catégorie");
+				System.out.println("----------------------");
+				System.out.println("Quelle catégorie souhaitez-vous modifier ? [Saisir l'ID correspondant]");
+				displayCatogories();
+				Category category = ibShopImpl.getCategory((long) input());
+				System.out.println("Veillez saisir le nom : ");
+				String nameToChange = inputStr();
+				category.setName(nameToChange);
+				ibShopImpl.addAndUpdateCategory(category);
+				displayCatogories();
+				break;
+			case 3:
+				System.out.println("Supprimer une catégorie");
+				System.out.println("-----------------------");
+				System.out.println("Quelle catégorie souhaitez-vous supprimer ? [Saisir l'ID correspondant]");
+				displayCatogories();
+				ibShopImpl.deleteCategory((long) input());
+				displayCatogories();
+				break;
+			case 4:
+				System.out.println("Retour");
+				break;
+			default:
+				System.out.println("Mauvaise saisie, recommencez !");
+			}
+		}
+	}
+
+	/**
+	 * Display articles by page of 5 each
+	 */
+	public void getArticlesByPages() {
+		int totalPages = ibShopImpl.getAllByPages(PageRequest.of(0, 5)).getTotalPages();
+		for (int i = 0; i < totalPages; i++) {
+			Page<Article> page = ibShopImpl.getAllByPages(PageRequest.of(i, 5));
+			displayArticles(page.getContent());
+			int pageNumber = i + 1;
+			System.out.println("Page " + pageNumber + " sur " + totalPages);
+			System.out.println();
+		}
+	}
+
+	/**
+	 * Display main menu
+	 */
 	public static void displayMenu() {
 		System.out.println("+------------------------------------------------------------+");
 		System.out.println("|                     Menu principal                         |");
@@ -77,201 +222,49 @@ public class TpShopApplication implements CommandLineRunner {
 		System.out.println("Que souhaitez-vous faire ? [Saisir le chiffre correspondant]");
 		System.out.println("[1] - Afficher tous les articles");
 		System.out.println("[2] - Afficher tous les articles avec pagination");
-		System.out.println("[3] - Gérer un article");
-		System.out.println("[4] - Afficher tous les articles d'une catégorie");
+		System.out.println("[3] - Afficher tous les articles d'une catégorie");
+		System.out.println("[4] - Gérer un article");
 		System.out.println("[5] - Gérer une catégorie");
 		System.out.println("[6] - Quitter l'application");
 	}
 
-	public void displayArticles() {
-		List<Article> articles = ibShopImpl.getAllArticles();
-		System.out.format(lineArticle);
-		System.out.format(headerArticle);
-		System.out.format(lineArticle);
-
-		for (Article article : articles) {
-			System.out.format(formatArticle, article.getId(), article.getBrand(), article.getDescription(),
-					article.getCategory().getName(), article.getPrice());
-		}
-		System.out.format(lineArticle);
-		System.out.println();
-	}
-	
-	public void displayArticleByCat(long id) {
-		List<Article> articles = ibShopImpl.getArticlesByCategory(id);
-		System.out.format(lineArticle);
-		System.out.format(headerArticle);
-		System.out.format(lineArticle);
-
-		for (Article article : articles) {
-			System.out.format(formatArticle, article.getId(), article.getBrand(), article.getDescription(),
-					article.getCategory().getName(), article.getPrice());
-		}
-		System.out.format(lineArticle);
-		System.out.println();
-	}
-
-	public void displayCatogories() {
-		List<Category> categories = ibShopImpl.getAllCategories();
-		System.out.format(lineCategory);
-		System.out.format(headerCategory);
-		System.out.format(lineCategory);
-
-		for (Category category : categories) {
-			System.out.format(formatCategory, category.getId(), category.getName());
-		}
-		System.out.format(lineCategory);
-		System.out.println();
-	}
-
-	public void displaySousMenu(String menuName) {
-		System.out.println("+---------------------------------------------------------------------------------------------------+");
-		System.out.println("|    Gestion des " + menuName + " : Que souhaitez-vous faire ? [Saisir le chiffre correspondant]    |");
-		System.out.println("+---------------------------------------------------------------------------------------------------+");
+	/**
+	 * Display sub menu according to the type (article or category)
+	 * 
+	 * @param str
+	 */
+	public void displaySousMenu(String str) {
+		System.out.println("--------------------------------------------------------------------------------------");
+		System.out.println("Gestion des " + str + " : Que souhaitez-vous faire ? [Saisir le chiffre correspondant]");
+		System.out.println("--------------------------------------------------------------------------------------");
 		System.out.println("[1] - Ajouter");
 		System.out.println("[2] - Modifier");
 		System.out.println("[3] - Supprimer");
 		System.out.println("[4] - Retour");
 	}
 
-	public void gestionArticle(int choice) {
-		while (choice != 4) {
-			displaySousMenu("articles");
-			switch (choice = input()) {
-			case 1:
-				addArticle();
-				break;
-			case 2:
-				updateArticle();
-				break;
-			case 3:
-				deleteArticle();
-				break;
-			case 4:
-				break;
-			default:
-				System.out.println("Mauvaise saisie, recommencez !");
-			}
-		}
+	/**
+	 * Display and format articles
+	 * 
+	 * @param articles
+	 */
+	private void displayArticles(List<Article> articles) {
+		System.out.format(lineArticle);
+		System.out.format(headerArticle);
+		System.out.format(lineArticle);
+		articles.forEach(article -> {
+			System.out.format(formatArticle, article.getId(), article.getBrand(), article.getDescription(),
+					article.getCategory().getName(), article.getPrice());
+		});
+		System.out.format(lineArticle + "\n");
 	}
 
-	public void addArticle() {
-		System.out.println("Ajouter un article");
-		System.out.println("Veillez saisir la marque :");
-		String brand = inputStr();
-		System.out.println("Veillez saisir la description :");
-		String description = inputStr();
-		System.out.println("Veillez saisir le prix :");
-		double price = inputDouble();
-		System.out.println("Veillez choisir la catégorie :");
-		displayCatogories();
-		Category category = ibShopImpl.getCategory((long) input());
-		ibShopImpl.addAndUpdateArticle(new Article(description, brand, price, category));
-		displayArticles();
-	}
-
-	public void updateArticle() {
-		System.out.println("Modifier un article - Quel article souhaitez-vous modifier ? [Saisir l'ID correspondant]");
-		displayArticles();
-		Article article = ibShopImpl.getArticle((long) input());
-		System.out.println(article);
-		System.out.println("Veillez saisir la marque :");
-		String brand = inputStr();
-		article.setBrand(brand);
-		System.out.println("Veillez saisir la description :");
-		String description = inputStr();
-		article.setDescription(description);
-		System.out.println("Veillez saisir le prix :");
-		double price = inputDouble();
-		article.setPrice(price);
-		System.out.println("Veillez choisir la catégorie :");
-		displayCatogories();
-		Category category = ibShopImpl.getCategory((long) input());
-		article.setCategory(category);
-		ibShopImpl.addAndUpdateArticle(article);
-		displayArticles();
-	}
-
-	public void deleteArticle() {
-		System.out.println("Quel article souhaitez-vous supprimer ? [Saisir l'ID correspondant]");
-		displayArticles();
-		int id = input();
-		ibShopImpl.deleteArticle((long) id);
-		displayArticles();
-	}
-
-	public void gestionCategory(int choice) {
-		while (choice != 4) {
-			displaySousMenu("catégories");
-			choice = input();
-			switch (choice) {
-			case 1:
-				addCategory();
-				break;
-			case 2:
-				updateCategory();
-				break;
-			case 3:
-				deleteCategory();
-				break;
-			case 4:
-				break;
-			default:
-				System.out.println("Mauvaise saisie, recommencez !");
-			}
-		}
-	}
-
-	public void deleteCategory() {
-		System.out.println("Quelle catégorie souhaitez-vous supprimer ? [Saisir l'ID correspondant]");
-		displayCatogories();
-		int id = input();
-		ibShopImpl.deleteCategory((long) id);
-		displayCatogories();
-	}
-
-	public void addCategory() {
-		System.out.println("Ajouter une catégorie");
-		System.out.println("Veillez saisir le nom :");
-		String name = inputStr();
-		ibShopImpl.addAnsUpdateCategory(new Category(name));
-		displayCatogories();
-	}
-
-	public void updateCategory() {
-		System.out.println("Quelle catégorie souhaitez-vous modifier ? [Saisir l'ID correspondant]");
-		displayCatogories();
-		int id = input();
-		Category category = ibShopImpl.getCategory((long) id);
-		System.out.println("Veillez saisir le nom : ");
-		String name = inputStr();
-		category.setName(name);
-		ibShopImpl.addAnsUpdateCategory(category);
-		displayCatogories();
-	}
-
-	public void getArticlesByPages() {
-		int totalPages = ibShopImpl.getAllByPages(PageRequest.of(0, 5)).getTotalPages();
-
-		for (int i = 0; i < totalPages; i++) {
-			Page<Article> page = ibShopImpl.getAllByPages(PageRequest.of(i, 5));
-
-			System.out.format(lineArticle);
-			System.out.format(headerArticle);
-			System.out.format(lineArticle);
-
-			for (Article article : page.getContent()) {
-				System.out.format(formatArticle, article.getId(), article.getBrand(), article.getDescription(),
-						article.getCategory().getName(), article.getPrice());
-			}
-			System.out.format(lineArticle);
-			int pageNumber = i + 1;
-			System.out.println("Page " + pageNumber + " sur " + totalPages);
-			System.out.println();
-		}
-	}
-
-	public static int input() {
+	/**
+	 * Get input int from scan
+	 * 
+	 * @return
+	 */
+	private static int input() {
 		int choice;
 		while (scan.hasNextInt() == false)
 			scan.next();
@@ -279,7 +272,12 @@ public class TpShopApplication implements CommandLineRunner {
 		return choice;
 	}
 
-	public static double inputDouble() {
+	/**
+	 * Get input double from scan
+	 * 
+	 * @return
+	 */
+	private static double inputDouble() {
 		double price;
 		while (scan.hasNextDouble() == false)
 			scan.next();
@@ -287,7 +285,12 @@ public class TpShopApplication implements CommandLineRunner {
 		return price;
 	}
 
-	public static String inputStr() {
+	/**
+	 * Get input string from scan
+	 * 
+	 * @return
+	 */
+	private static String inputStr() {
 		String str;
 		while (scan.hasNextLine() == false)
 			scan.next();
@@ -295,12 +298,11 @@ public class TpShopApplication implements CommandLineRunner {
 		return str;
 	}
 
-	public static String formatArticle = "| %-4d | %-25s | %-25s| %-25s | %-8s   | %n";
-	public static String lineArticle = "+------+---------------------------+--------------------------+---------------------------+------------+%n";
-	public static String headerArticle = "| ID   | BRAND                     | DESCRIPTION              | CATEGORY                  | PRICE      |%n";
+	private static String formatArticle = "| %-4d | %-25s | %-25s| %-25s | %-8s   | %n";
+	private static String lineArticle = "+------+---------------------------+--------------------------+---------------------------+------------+%n";
+	private static String headerArticle = "| ID   | BRAND                     | DESCRIPTION              | CATEGORY                  | PRICE      |%n";
 
-	public static String formatCategory = "| %-4d | %-25s | %n";
-	public static String lineCategory = "+------+---------------------------+%n";
-	public static String headerCategory = "| ID   | NAME                      |%n";
-
+	private static String formatCategory = "| %-4d | %-25s | %n";
+	private static String lineCategory = "+------+---------------------------+%n";
+	private static String headerCategory = "| ID   | NAME                      |%n";
 }
