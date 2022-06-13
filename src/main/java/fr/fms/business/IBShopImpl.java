@@ -21,42 +21,42 @@ public class IBShopImpl implements IBShop {
 	private ArticleRepository articleRepository;
 
 	@Override
-	public List<Article> getAllArticles() {
+	public List<Article> getAllArticles() throws Exception {
 		return articleRepository.findAll();
 	}
 
 	@Override
-	public List<Category> getAllCategories() {
+	public List<Category> getAllCategories() throws Exception {
 		return categoryRepository.findAll();
 	}
 
 	@Override
-	public Article getArticle(long id) {
+	public Article getArticle(long id)  {
 		return articleRepository.getReferenceById(id);
 	}
 
 	@Override
-	public Category getCategory(long id) {
+	public Category getCategory(long id)  {
 		return categoryRepository.getReferenceById(id);
 	}
 
 	@Override
-	public Article addAndUpdateArticle(Article article) {
+	public Article addAndUpdateArticle(Article article)  {
 		return articleRepository.save(article);
 	}
 
 	@Override
-	public void deleteArticle(long id) {
+	public void deleteArticle(long id)  {
 		articleRepository.deleteById(id);
 	}
 
 	@Override
-	public Category addAndUpdateCategory(Category category) {
+	public Category addAndUpdateCategory(Category category)  {
 		return categoryRepository.save(category);
 	}
 
 	@Override
-	public void deleteCategory(long id) {
+	public void deleteCategory(long id)  {
 		categoryRepository.deleteById(id);
 	}
 
@@ -66,7 +66,7 @@ public class IBShopImpl implements IBShop {
 	}
 
 	@Override
-	public List<Article> getArticlesByCategory(long id) {
+	public List<Article> getArticlesByCategory(long id)  {
 		return articleRepository.findByCategoryId(id);
 	}
 }

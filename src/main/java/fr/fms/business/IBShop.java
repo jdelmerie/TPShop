@@ -15,22 +15,23 @@ public interface IBShop {
 	 * 
 	 * @return
 	 */
-	public List<Article> getAllArticles();
+	public List<Article> getAllArticles() throws Exception;
 
 	/**
 	 * List of all Categories
 	 * 
 	 * @return
 	 */
-	public List<Category> getAllCategories();
+	public List<Category> getAllCategories() throws Exception;
 
 	/**
 	 * Get article by ID
 	 * 
 	 * @param id
 	 * @return
+	 * @throws Exception 
 	 */
-	public Article getArticle(long id);
+	public Article getArticle(long id) throws Exception;
 
 	/**
 	 * Get category by ID
@@ -38,7 +39,7 @@ public interface IBShop {
 	 * @param id
 	 * @return
 	 */
-	public Category getCategory(long id);
+	public Category getCategory(long id) throws Exception;
 
 	/**
 	 * Add and update article (using save)
@@ -46,14 +47,14 @@ public interface IBShop {
 	 * @param article
 	 * @return
 	 */
-	public Article addAndUpdateArticle(Article article);
+	public Article addAndUpdateArticle(Article article) throws Exception;
 
 	/**
 	 * Delete article by ID
 	 * 
 	 * @param id
 	 */
-	public void deleteArticle(long id);
+	public void deleteArticle(long id) throws Exception;
 
 	/**
 	 * And and update Category
@@ -61,14 +62,14 @@ public interface IBShop {
 	 * @param category
 	 * @return
 	 */
-	public Category addAndUpdateCategory(Category category);
+	public Category addAndUpdateCategory(Category category) throws Exception;
 
 	/**
 	 * Delete category by ID
 	 * 
 	 * @param id
 	 */
-	public void deleteCategory(long id);
+	public void deleteCategory(long id) throws Exception;
 
 	/**
 	 * List of article by pages
@@ -76,7 +77,7 @@ public interface IBShop {
 	 * @param pageable
 	 * @return
 	 */
-	public Page<Article> getAllByPages(Pageable pageable);
+	public Page<Article> getAllByPages(Pageable pageable) throws Exception;
 
 	/**
 	 * List of articles by category
@@ -84,5 +85,5 @@ public interface IBShop {
 	 * @param id
 	 * @return
 	 */
-	public List<Article> getArticlesByCategory(long id);
+	public List<Article> getArticlesByCategory(long id) throws Exception;
 }
